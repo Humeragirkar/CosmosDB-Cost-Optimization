@@ -1,8 +1,11 @@
 variable "location" {
-  default = "East US"
+  description = "Azure region for all resources"
+  type        = string
+  default     = "East US"
 }
 
-variable "resource_group_name" {
-  default = "cosmos-cost-optimizer-rg"
+variable "prefix" {
+  description = "Prefix for resource naming"
+  type        = string
+  default     = "costopt"
 }
-  
