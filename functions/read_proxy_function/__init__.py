@@ -1,12 +1,11 @@
 import json
 import logging
+import re
 import azure.functions as func
 from azure.cosmos import CosmosClient, exceptions
 from azure.storage.blob import BlobServiceClient
 
 def main(req: func.HttpRequest) -> func.HttpResponse:
-    Azure HTTP Trigger Function to read a billing record from Cosmos DB.
-    If the record is not found (cold data), it falls back to Azure Blob Storage.
 
     logging.info("Read Proxy Function triggered")
 
@@ -14,6 +13,10 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
     record_id = req.params.get('id')
     if not record_id:
         return func.HttpResponse("Missing 'id' query parameter", status_code=400)
+
+    # Validate record_id: only allow alphanumeric, underscore, dash (adjust as needed)
+    if not re.match(r'^[\w-]+$', record_id):
+        return func.HttpResponse("Invalid 'id' format", status_code=400)
 
     # Configuration (Use env vars or Key Vault in production)
     COSMOS_ENDPOINT = "<your-cosmos-endpoint>"
@@ -31,11 +34,11 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
         # Try to read from Cosmos DB
         item = container.read_item(item=record_id, partition_key=record_id)
-        logging.info(f"✅ Found record in Cosmos DB: {record_id}")
+        logging.info(f" Found record in Cosmos DB: {record_id}")
         return func.HttpResponse(json.dumps(item), status_code=200, mimetype="application/json")
 
     except exceptions.CosmosResourceNotFoundError:
-        logging.warning(f"📦 Record not found in Cosmos DB. Falling back to Blob: {record_id}")
+        logging.warning(f" Record not found in Cosmos DB. Falling back to Blob: {record_id}")
 
         try:
             # Initialize Blob Client
@@ -47,9 +50,9 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
             return func.HttpResponse(blob_data, status_code=200, mimetype="application/json")
 
         except Exception as blob_err:
-            logging.error(f"❌ Record not found in Blob or error reading blob: {blob_err}")
+            logging.error(f" Record not found in Blob or error reading blob: {blob_err}")
             return func.HttpResponse("Record not found in Cosmos DB or Blob Storage", status_code=404)
 
     except Exception as e:
-        logging.error(f"❌ Unexpected error: {e}")
+        logging.error(f" Unexpected error: {e}")
         return func.HttpResponse("Internal Server Error", status_code=500)
