@@ -101,3 +101,35 @@ This solution delivers significant cost savings by leveraging native Azure servi
 - Is easy to deploy and maintain
 
 - The architecture is scalable, secure, and ready for production use.
+
+---
+
+## Optional: Terraform Setup for Infrastructure Provisioning
+
+To automate provisioning, an optional terraform setup is included under `infra/terraform/`.
+
+### What It Deploys
+
+- Azure Resource Group  
+- Azure Cosmos DB Account  
+- Azure Blob Storage  
+- Azure Function App (consumption plan)  
+- App Settings for environment variables
+
+bash
+Copy
+Edit
+
+### How to Use
+
+1. Navigate to the terraform directory:
+   ```bash
+   cd infra/terraform
+Initialize and apply:
+
+bash
+Copy
+Edit
+terraform init
+terraform apply
+After creation, manually upload your Function code or automate deployment via GitHub Actions.
