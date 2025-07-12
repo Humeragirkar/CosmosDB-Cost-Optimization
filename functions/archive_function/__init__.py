@@ -1,10 +1,12 @@
 import datetime
 import json
+import logging  
 import azure.functions as func
 from azure.cosmos import CosmosClient
 from azure.storage.blob import BlobServiceClient
 
 def main(mytimer: func.TimerRequest) -> None:
+    logging.info('Archive function started.')  
 
     # Configuration (Ideally use environment variables or Azure Key Vault)
     COSMOS_ENDPOINT = "<your-cosmos-endpoint>"
@@ -29,7 +31,11 @@ def main(mytimer: func.TimerRequest) -> None:
     # Query records older than cutoff
     query = "SELECT * FROM c WHERE c.timestamp < @cutoff"
     parameters = [{"name": "@cutoff", "value": cutoff_date}]
-    archived_records = container.query_items(query=query, parameters=parameters, enable_cross_partition_query=True)
+    archived_records = list(container.query_items(query=query, parameters=parameters, enable_cross_partition_query=True))  #Converted to list to count records
+
+    logging.info(f"Found {len(archived_records)} records to archive.")  #Added log for number of records found
+
+    archived_count = 0  #Track how many records archived
 
     # Archive records to Blob Storage
     for record in archived_records:
@@ -43,6 +49,9 @@ def main(mytimer: func.TimerRequest) -> None:
 
             # Delete from Cosmos DB
             container.delete_item(item=record_id, partition_key=partition_key)
+            archived_count += 1  # <-- Increment success count
 
         except Exception as e:
-            print(f"Error archiving record {record_id}: {str(e)}")
+            logging.error(f"Error archiving record {record_id}: {str(e)}") 
+
+    logging.info(f"Successfully archived {archived_count} records.")   #Log total successful archives
