@@ -1,5 +1,6 @@
 # Azure Serverless Cost Optimization – Billing Records Archive Solution
 
+---
 
 ## Objective
 
