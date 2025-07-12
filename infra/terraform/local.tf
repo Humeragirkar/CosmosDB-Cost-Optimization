@@ -5,4 +5,4 @@ locals {
   cosmos_db_name          = "billing-db"
   cosmos_container_name   = "records"
   blob_container_name     = "archived-records"
-}
+} 
