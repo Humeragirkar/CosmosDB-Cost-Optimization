@@ -116,20 +116,14 @@ To automate provisioning, an optional terraform setup is included under `infra/t
 - Azure Function App (consumption plan)  
 - App Settings for environment variables
 
-bash
-Copy
-Edit
-
 ### How to Use
 
 1. Navigate to the terraform directory:
    ```bash
    cd infra/terraform
-Initialize and apply:
-
-bash
-Copy
-Edit
-terraform init
-terraform apply
-After creation, manually upload your Function code or automate deployment via GitHub Actions.
+   
+2. Initialize and apply:
+   ```bash
+   terraform init
+   terraform apply
+   
